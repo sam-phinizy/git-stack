@@ -157,14 +157,20 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add git-stack.rb
-          git commit -m "Update Homebrew formula to v${{ steps.version.outputs.version }} with SHA256 checksums" || exit 0
+          if git commit -m "Update Homebrew formula to v${{ steps.version.outputs.version }} with SHA256 checksums"; then
+            echo "COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          fi
 
       - name: Push changes
         run: |
-          git fetch origin main:main
-          git checkout main
-          git pull --rebase origin main
-          git push origin main
+          if [ -n "$COMMIT_SHA" ]; then
+            git fetch origin main:main
+            git checkout main
+            git cherry-pick $COMMIT_SHA
+            git push origin main
+          else
+            echo "No changes to push"
+          fi
 
   update-tap:
     needs: update-homebrew-formula
