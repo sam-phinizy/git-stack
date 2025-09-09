@@ -137,10 +137,20 @@ jobs:
 
       - name: Update Homebrew formula
         run: |
-          sed -i "s/version \".*\"/version \"${{ steps.version.outputs.version }}\"/" git-stack.rb
-          sed -i "s/SHA256_PLACEHOLDER_INTEL/${{ steps.checksums.outputs.macos_amd64_sha }}/" git-stack.rb
-          sed -i "s/SHA256_PLACEHOLDER_ARM/${{ steps.checksums.outputs.macos_arm64_sha }}/" git-stack.rb
-          sed -i "s/SHA256_PLACEHOLDER/${{ steps.checksums.outputs.linux_sha }}/" git-stack.rb
+          echo "Before update:"
+          cat git-stack.rb | head -25
+          echo "Updating version to: ${{ steps.version.outputs.version }}"
+          echo "Linux SHA: ${{ steps.checksums.outputs.linux_sha }}"
+          echo "macOS AMD64 SHA: ${{ steps.checksums.outputs.macos_amd64_sha }}"
+          echo "macOS ARM64 SHA: ${{ steps.checksums.outputs.macos_arm64_sha }}"
+          
+          sed -i 's/version "[^"]*"/version "${{ steps.version.outputs.version }}"/' git-stack.rb
+          sed -i 's/SHA256_PLACEHOLDER_INTEL/${{ steps.checksums.outputs.macos_amd64_sha }}/' git-stack.rb
+          sed -i 's/SHA256_PLACEHOLDER_ARM/${{ steps.checksums.outputs.macos_arm64_sha }}/' git-stack.rb
+          sed -i 's/SHA256_PLACEHOLDER/${{ steps.checksums.outputs.linux_sha }}/' git-stack.rb
+          
+          echo "After update:"
+          cat git-stack.rb | head -25
 
       - name: Commit updated formula
         run: |
