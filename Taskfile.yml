@@ -1,0 +1,155 @@
+version: '3'
+
+vars:
+  BINARY_NAME: git-stack
+
+tasks:
+  build:
+    desc: Build the binary
+    cmds:
+      - go build -o {{.BINARY_NAME}} .
+
+  build:linux:
+    desc: Build for Linux
+    cmds:
+      - GOOS=linux GOARCH=amd64 go build -o {{.BINARY_NAME}}-linux .
+
+  build:macos:
+    desc: Build for macOS
+    cmds:
+      - GOOS=darwin GOARCH=amd64 go build -o {{.BINARY_NAME}}-macos .
+
+  build:all:
+    desc: Build for all platforms
+    deps: [build:linux, build:macos]
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -f {{.BINARY_NAME}} {{.BINARY_NAME}}-*
+
+  version:
+    desc: Show current version (latest git tag)
+    cmds:
+      - git describe --tags --abbrev=0 2>/dev/null || echo "No tags found"
+
+  version:next:patch:
+    desc: Show next patch version
+    cmds:
+      - |
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        if [ "$current" = "0.0.0" ]; then
+          echo "v0.0.1"
+        else
+          echo "v$(echo $current | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')"
+        fi
+
+  version:next:minor:
+    desc: Show next minor version
+    cmds:
+      - |
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        if [ "$current" = "0.0.0" ]; then
+          echo "v0.1.0"
+        else
+          echo "v$(echo $current | awk -F. '{$(NF-1) = $(NF-1) + 1; $NF = 0;} 1' | sed 's/ /./g')"
+        fi
+
+  version:next:major:
+    desc: Show next major version
+    cmds:
+      - |
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        if [ "$current" = "0.0.0" ]; then
+          echo "v1.0.0"
+        else
+          echo "v$(echo $current | awk -F. '{$1 = $1 + 1; $(NF-1) = 0; $NF = 0;} 1' | sed 's/ /./g')"
+        fi
+
+  tag:patch:
+    desc: Create a new patch tag
+    cmds:
+      - |
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        if [ "$current" = "0.0.0" ]; then
+          new_tag="v0.0.1"
+        else
+          new_tag="v$(echo $current | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')"
+        fi
+        echo "Creating tag: $new_tag"
+        git tag -a "$new_tag" -m "Release $new_tag"
+        echo "Tag created. Push with: git push origin $new_tag"
+
+  tag:minor:
+    desc: Create a new minor tag
+    cmds:
+      - |
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        if [ "$current" = "0.0.0" ]; then
+          new_tag="v0.1.0"
+        else
+          new_tag="v$(echo $current | awk -F. '{$(NF-1) = $(NF-1) + 1; $NF = 0;} 1' | sed 's/ /./g')"
+        fi
+        echo "Creating tag: $new_tag"
+        git tag -a "$new_tag" -m "Release $new_tag"
+        echo "Tag created. Push with: git push origin $new_tag"
+
+  tag:major:
+    desc: Create a new major tag
+    cmds:
+      - |
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
+        if [ "$current" = "0.0.0" ]; then
+          new_tag="v1.0.0"
+        else
+          new_tag="v$(echo $current | awk -F. '{$1 = $1 + 1; $(NF-1) = 0; $NF = 0;} 1' | sed 's/ /./g')"
+        fi
+        echo "Creating tag: $new_tag"
+        git tag -a "$new_tag" -m "Release $new_tag"
+        echo "Tag created. Push with: git push origin $new_tag"
+
+  release:patch:
+    desc: Tag patch version and push to trigger release
+    cmds:
+      - task: tag:patch
+      - |
+        tag=$(git describe --tags --abbrev=0)
+        echo "Pushing tag: $tag"
+        git push origin "$tag"
+
+  release:minor:
+    desc: Tag minor version and push to trigger release
+    cmds:
+      - task: tag:minor
+      - |
+        tag=$(git describe --tags --abbrev=0)
+        echo "Pushing tag: $tag"
+        git push origin "$tag"
+
+  release:major:
+    desc: Tag major version and push to trigger release
+    cmds:
+      - task: tag:major
+      - |
+        tag=$(git describe --tags --abbrev=0)
+        echo "Pushing tag: $tag"
+        git push origin "$tag"
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test ./...
+
+  fmt:
+    desc: Format code
+    cmds:
+      - go fmt ./...
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
+
+  check:
+    desc: Run all checks (fmt, vet, test)
+    deps: [fmt, vet, test]
