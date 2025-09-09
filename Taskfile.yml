@@ -4,6 +4,11 @@ vars:
   BINARY_NAME: git-stack
 
 tasks:
+  default:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
   build:
     desc: Build the binary
     cmds:
@@ -37,8 +42,8 @@ tasks:
     desc: Show next patch version
     cmds:
       - |
-        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
-        if [ "$current" = "0.0.0" ]; then
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "")
+        if [ -z "$current" ] || [ "$current" = "0.0.0" ]; then
           echo "v0.0.1"
         else
           echo "v$(echo $current | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')"
@@ -48,30 +53,30 @@ tasks:
     desc: Show next minor version
     cmds:
       - |
-        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
-        if [ "$current" = "0.0.0" ]; then
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "")
+        if [ -z "$current" ] || [ "$current" = "0.0.0" ]; then
           echo "v0.1.0"
         else
-          echo "v$(echo $current | awk -F. '{$(NF-1) = $(NF-1) + 1; $NF = 0;} 1' | sed 's/ /./g')"
+          echo "v$(echo $current | awk -F. 'NF>=2 {$(NF-1) = $(NF-1) + 1; $NF = 0;} NF==1 {$1 = $1; $2 = 1; $3 = 0;} 1' | sed 's/ /./g')"
         fi
 
   version:next:major:
     desc: Show next major version
     cmds:
       - |
-        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
-        if [ "$current" = "0.0.0" ]; then
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "")
+        if [ -z "$current" ] || [ "$current" = "0.0.0" ]; then
           echo "v1.0.0"
         else
-          echo "v$(echo $current | awk -F. '{$1 = $1 + 1; $(NF-1) = 0; $NF = 0;} 1' | sed 's/ /./g')"
+          echo "v$(echo $current | awk -F. 'NF>=3 {$1 = $1 + 1; $2 = 0; $3 = 0;} NF==2 {$1 = $1 + 1; $2 = 0; $3 = 0;} NF==1 {$1 = $1 + 1; $2 = 0; $3 = 0;} 1' | sed 's/ /./g')"
         fi
 
   tag:patch:
     desc: Create a new patch tag
     cmds:
       - |
-        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
-        if [ "$current" = "0.0.0" ]; then
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "")
+        if [ -z "$current" ] || [ "$current" = "0.0.0" ]; then
           new_tag="v0.0.1"
         else
           new_tag="v$(echo $current | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')"
@@ -84,11 +89,11 @@ tasks:
     desc: Create a new minor tag
     cmds:
       - |
-        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
-        if [ "$current" = "0.0.0" ]; then
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "")
+        if [ -z "$current" ] || [ "$current" = "0.0.0" ]; then
           new_tag="v0.1.0"
         else
-          new_tag="v$(echo $current | awk -F. '{$(NF-1) = $(NF-1) + 1; $NF = 0;} 1' | sed 's/ /./g')"
+          new_tag="v$(echo $current | awk -F. 'NF>=2 {$(NF-1) = $(NF-1) + 1; $NF = 0;} NF==1 {$1 = $1; $2 = 1; $3 = 0;} 1' | sed 's/ /./g')"
         fi
         echo "Creating tag: $new_tag"
         git tag -a "$new_tag" -m "Release $new_tag"
@@ -98,11 +103,11 @@ tasks:
     desc: Create a new major tag
     cmds:
       - |
-        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "0.0.0")
-        if [ "$current" = "0.0.0" ]; then
+        current=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || echo "")
+        if [ -z "$current" ] || [ "$current" = "0.0.0" ]; then
           new_tag="v1.0.0"
         else
-          new_tag="v$(echo $current | awk -F. '{$1 = $1 + 1; $(NF-1) = 0; $NF = 0;} 1' | sed 's/ /./g')"
+          new_tag="v$(echo $current | awk -F. 'NF>=3 {$1 = $1 + 1; $2 = 0; $3 = 0;} NF==2 {$1 = $1 + 1; $2 = 0; $3 = 0;} NF==1 {$1 = $1 + 1; $2 = 0; $3 = 0;} 1' | sed 's/ /./g')"
         fi
         echo "Creating tag: $new_tag"
         git tag -a "$new_tag" -m "Release $new_tag"
