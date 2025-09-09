@@ -165,7 +165,8 @@ jobs:
       - name: Checkout main repo
         uses: actions/checkout@v4
         with:
-          ref: main  # Get the updated formula from main branch
+          ref: main
+          fetch-depth: 0  # Get the updated formula from main branch
 
       - name: Extract version from tag
         id: version
@@ -180,8 +181,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: beer-hall
 
-      - name: Copy updated formula to tap
+      - name: Pull latest changes and copy updated formula to tap
         run: |
+          git pull origin main
+          ls -la git-stack.rb
+          cat git-stack.rb | head -10
           cp git-stack.rb beer-hall/Formula/git-stack.rb
 
       - name: Commit and push to tap
