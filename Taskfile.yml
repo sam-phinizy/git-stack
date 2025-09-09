@@ -116,6 +116,7 @@ tasks:
   release:patch:
     desc: Tag patch version and push to trigger release
     cmds:
+      - task: release:preflight
       - task: tag:patch
       - |
         tag=$(git describe --tags --abbrev=0)
@@ -125,6 +126,7 @@ tasks:
   release:minor:
     desc: Tag minor version and push to trigger release
     cmds:
+      - task: release:preflight
       - task: tag:minor
       - |
         tag=$(git describe --tags --abbrev=0)
@@ -134,11 +136,45 @@ tasks:
   release:major:
     desc: Tag major version and push to trigger release
     cmds:
+      - task: release:preflight
       - task: tag:major
       - |
         tag=$(git describe --tags --abbrev=0)
         echo "Pushing tag: $tag"
         git push origin "$tag"
+
+  release:preflight:
+    desc: Pre-release safety checks (clean repo, main branch, up-to-date)
+    cmds:
+      - |
+        echo "🔍 Checking git status..."
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "❌ Repository has uncommitted changes. Please commit or stash them before releasing."
+          git status --short
+          exit 1
+        fi
+        echo "✅ Repository is clean"
+      - |
+        echo "🔍 Checking current branch..."
+        current_branch=$(git branch --show-current)
+        if [ "$current_branch" != "main" ]; then
+          echo "❌ Not on main branch. Current branch: $current_branch"
+          echo "Please checkout main branch before releasing."
+          exit 1
+        fi
+        echo "✅ On main branch"
+      - |
+        echo "🔍 Checking if main is up-to-date with remote..."
+        git fetch origin main
+        LOCAL=$(git rev-parse main)
+        REMOTE=$(git rev-parse origin/main)
+        if [ "$LOCAL" != "$REMOTE" ]; then
+          echo "❌ Local main branch is not up-to-date with origin/main"
+          echo "Please pull latest changes: git pull origin main"
+          exit 1
+        fi
+        echo "✅ Main branch is up-to-date with remote"
+      - echo "🚀 All pre-flight checks passed! Ready for release."
 
   test:
     desc: Run tests
