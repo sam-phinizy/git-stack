@@ -150,10 +150,9 @@ jobs:
           git commit -m "Update Homebrew formula to v${{ steps.version.outputs.version }} with SHA256 checksums" || exit 0
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: main
+        run: |
+          git pull --rebase origin main
+          git push origin main
 
   update-tap:
     needs: update-homebrew-formula

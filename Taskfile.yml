@@ -147,34 +147,34 @@ tasks:
     desc: Pre-release safety checks (clean repo, main branch, up-to-date)
     cmds:
       - |
-        echo "🔍 Checking git status..."
+        echo "Checking git status..."
         if [ -n "$(git status --porcelain)" ]; then
-          echo "❌ Repository has uncommitted changes. Please commit or stash them before releasing."
+          echo "Repository has uncommitted changes. Please commit or stash them before releasing."
           git status --short
           exit 1
         fi
-        echo "✅ Repository is clean"
+        echo "Repository is clean"
       - |
-        echo "🔍 Checking current branch..."
+        echo "Checking current branch..."
         current_branch=$(git branch --show-current)
         if [ "$current_branch" != "main" ]; then
-          echo "❌ Not on main branch. Current branch: $current_branch"
+          echo "Not on main branch. Current branch: $current_branch"
           echo "Please checkout main branch before releasing."
           exit 1
         fi
-        echo "✅ On main branch"
+        echo "On main branch"
       - |
-        echo "🔍 Checking if main is up-to-date with remote..."
+        echo "Checking if main is up-to-date with remote..."
         git fetch origin main
         LOCAL=$(git rev-parse main)
         REMOTE=$(git rev-parse origin/main)
         if [ "$LOCAL" != "$REMOTE" ]; then
-          echo "❌ Local main branch is not up-to-date with origin/main"
+          echo "Local main branch is not up-to-date with origin/main"
           echo "Please pull latest changes: git pull origin main"
           exit 1
         fi
-        echo "✅ Main branch is up-to-date with remote"
-      - echo "🚀 All pre-flight checks passed! Ready for release."
+        echo "Main branch is up-to-date with remote"
+      - echo "All pre-flight checks passed! Ready for release."
 
   test:
     desc: Run tests
