@@ -194,7 +194,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: sam-phinizy/homebrew-beer-hall
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           path: beer-hall
 
       - name: Pull latest changes and copy updated formula to tap
