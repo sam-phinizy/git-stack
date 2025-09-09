@@ -1,7 +1,7 @@
 class GitStack < Formula
   desc "Git stack management tool with interactive TUI"
   homepage "https://github.com/sam-phinizy/git-stack"
-  version "0.3.1"
+  version "0.3.2"
   license "MIT"
 
   on_macos do
