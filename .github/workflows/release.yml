@@ -145,9 +145,9 @@ jobs:
           echo "macOS ARM64 SHA: ${{ steps.checksums.outputs.macos_arm64_sha }}"
           
           sed -i 's/version "[^"]*"/version "${{ steps.version.outputs.version }}"/' git-stack.rb
-          sed -i 's/SHA256_PLACEHOLDER_INTEL/${{ steps.checksums.outputs.macos_amd64_sha }}/' git-stack.rb
-          sed -i 's/SHA256_PLACEHOLDER_ARM/${{ steps.checksums.outputs.macos_arm64_sha }}/' git-stack.rb
-          sed -i 's/SHA256_PLACEHOLDER/${{ steps.checksums.outputs.linux_sha }}/' git-stack.rb
+          sed -i '/if Hardware::CPU.intel?/,/end/ { s/sha256 \"[^\"]*\"/sha256 \"${{ steps.checksums.outputs.macos_amd64_sha }}\"/; }' git-stack.rb
+          sed -i '/if Hardware::CPU.arm?/,/end/ { s/sha256 \"[^\"]*\"/sha256 \"${{ steps.checksums.outputs.macos_arm64_sha }}\"/; }' git-stack.rb
+          sed -i '/on_linux/,/end/ { s/sha256 \"[^\"]*\"/sha256 \"${{ steps.checksums.outputs.linux_sha }}\"/; }' git-stack.rb
           
           echo "After update:"
           cat git-stack.rb | head -25
