@@ -1,24 +1,24 @@
 class GitStack < Formula
   desc "Git stack management tool with interactive TUI"
   homepage "https://github.com/sam-phinizy/git-stack"
-  version "0.3.2"
+  version "0.3.3"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
       url "https://github.com/sam-phinizy/git-stack/releases/download/v#{version}/git-stack-macos-amd64"
-      sha256 "4007e3b29079e9617213274665b56f95b962411d1e2b1fa6acc41302d0c78bbb"
+      sha256 "38e446191a4eb9e9327b575527e6b04bd421e3b4a8982538d49b30483865efa5"
     end
     if Hardware::CPU.arm?
       url "https://github.com/sam-phinizy/git-stack/releases/download/v#{version}/git-stack-macos-arm64"
-      sha256 "175a43e6a251efffdf96cce8ac2daabb961ea78363ab0695e1e0d9d56586c717"
+      sha256 "e5b28b9d6418b33997e63bd7d776d95f8ee845045236546767702df515e2d8a8"
     end
   end
 
   on_linux do
     if Hardware::CPU.intel?
       url "https://github.com/sam-phinizy/git-stack/releases/download/v#{version}/git-stack-linux"
-      sha256 "b293a4183236141551cbd78e89700d19edf241e42cec6e8d24eaba436f611dd1"
+      sha256 "409e1d035b7181ba5d164e6e153064c73f664d2959405a19bbc50edbe52da0ad"
     end
   end
 
