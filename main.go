@@ -207,8 +207,8 @@ var rootCmd = &cobra.Command{
 	Use:   "git-stack",
 	Short: "A utility to manage a stack of checked-out Git branches.",
 	Long:  `git-stack provides a set of commands to manage a stack of Git branches, simplifying workflows with dependent branches.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		listCmd.Run(cmd, args)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return listCmd.RunE(cmd, args)
 	},
 }
 
